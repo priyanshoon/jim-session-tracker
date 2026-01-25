@@ -142,3 +142,6 @@ vite.config.ts.timestamp-*
 
 .direnv
 temp.txt
+record.db
+dump.rdb
+

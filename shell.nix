@@ -6,9 +6,10 @@ pkgs.mkShell {
         pnpm
         sqlite
         httpyac
+        redis
     ];
 
     shellHook = ''
-        nix shell env
+      echo "nix shell env"
     '';
 }
