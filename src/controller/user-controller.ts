@@ -7,28 +7,35 @@ import { encryptPassword, checkPassword } from "../utils/password.ts";
 
 const db = new UserDatabaseService();
 
-export async function getAllUserInfo(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = db.readAllUserInfo();
-    return res.status(200).json({ data });
+    req.session.userId = null;
+    req.session.save(function (error) {
+      if (error) next(error);
+      res.redirect("/");
+    });
   } catch (error) {
     next(error);
   }
 }
 
-export async function getUserProfile(req: Request, res: Response) {
-  const userId = req.session.userId;
-  const user = db.readUserInfo(+userId as number);
-  const { password, ...profile } = user ?? {};
-  res.status(200).json({
-    data: {
-      profile,
-    },
-  });
+export async function getUserProfile(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.session.userId;
+    const user = db.readUserInfo(+userId as number);
+    const { password, ...profile } = user ?? {};
+    res.status(200).json({
+      data: {
+        profile,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
 export async function loginUser(
