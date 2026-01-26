@@ -10,6 +10,8 @@ dotenv.config();
 import userRoute from "./router/user-router.ts";
 import logger from "./middleware/logger.ts";
 import DatabaseService from "./database/user-dbservice.ts";
+import exerciseRoute from "./router/exercise-router.ts";
+import templateRouter from "./router/templates-router.ts";
 
 const db = new DatabaseService();
 const app = express();
@@ -43,6 +45,8 @@ app.use(
 );
 
 app.use("/user", userRoute);
+app.use("/exercises", exerciseRoute);
+app.use("/templates", templateRouter);
 
 app.get("/", (req: express.Request, res: express.Response) => {
   res.json({ status: "ok" });
