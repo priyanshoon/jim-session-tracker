@@ -12,6 +12,9 @@ import logger from "./middleware/logger.ts";
 import DatabaseService from "./database/user-dbservice.ts";
 import exerciseRoute from "./router/exercise-router.ts";
 import templateRouter from "./router/templates-router.ts";
+import workoutRouter from "./router/workout-router.ts";
+import setsRouter from "./router/sets-router.ts";
+import { globalErrorHandler, notFoundHandler } from "./middleware/error.ts";
 
 const db = new DatabaseService();
 const app = express();
@@ -27,7 +30,7 @@ let redisStore = new RedisStore({
 app.use(logger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: "http://localhost:5000", credentials: true }));
+app.use(cors({ origin: ["http://localhost:5000", "http://localhost:5173"], credentials: true }));
 app.use(
   session({
     name: "sid",
@@ -47,10 +50,18 @@ app.use(
 app.use("/user", userRoute);
 app.use("/exercises", exerciseRoute);
 app.use("/templates", templateRouter);
+app.use("/workouts", workoutRouter);
+app.use("/sets", setsRouter);
 
 app.get("/", (req: express.Request, res: express.Response) => {
   res.json({ status: "ok" });
 });
+
+// 404 handler
+app.use(notFoundHandler);
+
+// Global error handler
+app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
   console.log("server is up running on port 3000");

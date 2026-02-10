@@ -1,9 +1,10 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 
 import UserDatabaseService from "../database/user-dbservice.ts";
 import type { UserInfoDTO } from "../dtos/user-info-dto.ts";
 import { isValidEmail } from "../utils/helper.ts";
 import { encryptPassword, checkPassword } from "../utils/password.ts";
+import "../types/express-session.d.ts"
 
 const db = new UserDatabaseService();
 
@@ -25,8 +26,8 @@ export async function getUserProfile(
   next: NextFunction,
 ) {
   try {
-    const userId = req.session.userId;
-    const user = db.readUserInfo(+userId as number);
+    const id = req.session.userId as number;
+    const user = db.readUserInfo(+id);
     const { password, ...profile } = user ?? {};
     res.status(200).json({
       data: {
