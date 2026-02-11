@@ -26,6 +26,7 @@ export default function SiteLayout() {
               <>
                 <NavLink to="/dashboard">Dashboard</NavLink>
                 <NavLink to="/exercises">Exercises</NavLink>
+                <NavLink to="/templates">Templates</NavLink>
               </>
             ) : null}
           </nav>

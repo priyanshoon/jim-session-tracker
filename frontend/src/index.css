@@ -372,6 +372,15 @@ p {
   overflow-y: auto;
 }
 
+.panel-footer-action {
+  margin-top: 0.9rem;
+  display: flex;
+}
+
+.panel-footer-action .button {
+  width: 100%;
+}
+
 .list-item-button {
   width: 100%;
   text-align: left;
@@ -415,7 +424,22 @@ p {
   font: inherit;
 }
 
+.dashboard-form select {
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+  background: #fff;
+  color: var(--text-main);
+  font: inherit;
+  width: 100%;
+}
+
 .dashboard-form input:focus-visible {
+  outline: 2px solid rgba(31, 107, 81, 0.35);
+  border-color: var(--accent);
+}
+
+.dashboard-form select:focus-visible {
   outline: 2px solid rgba(31, 107, 81, 0.35);
   border-color: var(--accent);
 }
@@ -444,10 +468,62 @@ p {
   color: var(--text-main);
 }
 
+.template-exercise-list {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.template-exercise-list h3 {
+  font-size: 1.05rem;
+}
+
+.template-exercise-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.template-exercise-list li {
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 0.55rem 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #fff;
+}
+
+.template-exercise-list small {
+  color: var(--text-muted);
+}
+
 .form-success {
   margin-top: 0.8rem;
   color: var(--accent-deep);
   font-weight: 700;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(28, 22, 14, 0.35);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.modal-panel {
+  width: min(520px, 100%);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-soft);
+  padding: 1rem;
 }
 
 .dashboard-header p {

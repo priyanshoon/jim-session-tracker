@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Exercises from "./pages/Exercises";
+import Templates from "./pages/Templates";
 
 export default function App() {
   return (
@@ -28,6 +29,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Exercises />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/templates"
+            element={
+              <ProtectedRoute>
+                <Templates />
               </ProtectedRoute>
             }
           />
