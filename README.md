@@ -2,6 +2,8 @@
 
 Track your workouts, log sets and reps, and visualize your progress over time. This project focuses on simple, fast logging with insightful analytics—especially total weight lifted and trends across sessions.
 
+![home](./assets/home.png) 
+
 ## Features
 
 - User registration and login with basic validation
