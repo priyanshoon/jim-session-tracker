@@ -1,26 +1,83 @@
-import type { ApiResponse } from "./types";
+import axios, { type AxiosRequestConfig } from "axios";
+import { ApiClientError, type ApiResponse } from "./types";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
 
-export async function apiFetch<T>(
-  path: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const res = await fetch(API_BASE + path, {
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers ?? {}),
-    },
-    ...options,
-  });
+const http = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+  timeout: 10_000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN",
+});
 
-  const json: ApiResponse<T> = await res.json();
+function extractMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const apiMessage = (error.response?.data as { message?: string } | undefined)
+      ?.message;
+    if (typeof apiMessage === "string" && apiMessage.trim().length > 0) {
+      return apiMessage;
+    }
 
-  if (!json.success) {
-    throw new Error(json.message);
+    if (error.code === "ECONNABORTED") {
+      return "The request timed out. Please try again.";
+    }
+
+    if (!error.response) {
+      return "Unable to connect to server. Please check your network.";
+    }
   }
 
-  return json.data;
+  return "Something went wrong. Please try again.";
 }
 
+function hasSuccessEnvelope<T>(value: unknown): value is ApiResponse<T> {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  return "success" in value;
+}
+
+function hasDataEnvelope<T>(value: unknown): value is { data: T } {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  return "data" in value;
+}
+
+export async function apiRequest<T>(
+  config: AxiosRequestConfig
+): Promise<T> {
+  try {
+    const { data } = await http.request<unknown>(config);
+
+    if (hasSuccessEnvelope<T>(data)) {
+      if (!data.success) {
+        throw new ApiClientError(data.message);
+      }
+
+      return data.data;
+    }
+
+    if (hasDataEnvelope<T>(data)) {
+      return data.data;
+    }
+
+    return data as T;
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      throw error;
+    }
+
+    if (axios.isAxiosError(error)) {
+      throw new ApiClientError(extractMessage(error), error.response?.status);
+    }
+
+    throw new ApiClientError(extractMessage(error));
+  }
+}

@@ -1,10 +1,11 @@
-import { apiFetch } from "./client";
+import { apiRequest } from "./client";
 import type { User } from "./auth.types";
 
-export function login(email: string, password: string): Promise<User> {
-  return apiFetch<User>("/user/login", {
+export function login(email: string, password: string): Promise<void> {
+  return apiRequest<void>({
+    url: "/user/login",
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    data: { email, password },
   });
 }
 
@@ -13,19 +14,29 @@ export function register(
   email: string,
   password: string
 ): Promise<User> {
-  return apiFetch<User>("/user/register", {
+  return apiRequest<User>({
+    url: "/user/register",
     method: "POST",
-    body: JSON.stringify({ name, email, password }),
+    data: { name, email, password },
   });
 }
 
 export function getMe(): Promise<User> {
-  return apiFetch<User>("/user/me");
-}
+  return apiRequest<{ profile: User } | User>({
+    url: "/user/me",
+    method: "GET",
+  }).then((response) => {
+    if ("profile" in response) {
+      return response.profile;
+    }
 
-export function logout(): Promise<void> {
-  return apiFetch<void>("/user/logout", {
-    method: "POST",
+    return response;
   });
 }
 
+export function logout(): Promise<void> {
+  return apiRequest<void>({
+    url: "/user/logout",
+    method: "POST",
+  });
+}
