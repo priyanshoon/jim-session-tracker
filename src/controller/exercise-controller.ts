@@ -11,7 +11,8 @@ export async function getExerciseById(
 ) {
   try {
     const { id } = req.params;
-    const exercise = db.getExerciseById(+id);
+    const userId = req.session.userId as number;
+    const exercise = db.getExerciseById(+id, userId);
     if (!exercise) {
       return res.status(404).json({
         success: false,
@@ -33,7 +34,8 @@ export async function getExercise(
   next: NextFunction,
 ) {
   try {
-    const exercise = db.getExercise();
+    const userId = req.session.userId as number;
+    const exercise = db.getExercise(userId);
     res.status(200).json({
       success: true,
       data: exercise,
@@ -47,6 +49,7 @@ export const createExercise = [
   requireAuth,
   (req: Request, res: Response) => {
     try {
+      const userId = req.session.userId as number;
       const { name } = req.body;
 
       if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -59,7 +62,7 @@ export const createExercise = [
       const trimmedName = name.trim();
 
       // Check if exercise already exists
-      const existingExercise = db.getExercise().find(ex => 
+      const existingExercise = db.getExercise(userId).find(ex => 
         ex.name.toLowerCase() === trimmedName.toLowerCase()
       );
 
@@ -70,7 +73,7 @@ export const createExercise = [
         });
       }
 
-      const newExercise = db.createExercise(trimmedName);
+      const newExercise = db.createExercise(trimmedName, userId);
 
       res.status(201).json({
         success: true,
@@ -90,6 +93,7 @@ export const updateExercise = [
   requireAuth,
   (req: Request, res: Response) => {
     try {
+      const userId = req.session.userId as number;
       const { id } = req.params;
       const { name } = req.body;
       const exerciseId = parseInt(id as string);
@@ -111,7 +115,7 @@ export const updateExercise = [
       const trimmedName = name.trim();
 
       // Check if exercise exists
-      const existingExercise = db.getExerciseById(exerciseId);
+      const existingExercise = db.getExerciseById(exerciseId, userId);
       if (!existingExercise) {
         return res.status(404).json({
           success: false,
@@ -120,7 +124,7 @@ export const updateExercise = [
       }
 
       // Check if another exercise with this name already exists
-      const duplicateExercise = db.getExercise().find(ex => 
+      const duplicateExercise = db.getExercise(userId).find(ex => 
         ex.id !== exerciseId && ex.name.toLowerCase() === trimmedName.toLowerCase()
       );
 
@@ -131,7 +135,7 @@ export const updateExercise = [
         });
       }
 
-      const updatedExercise = db.updateExercise(exerciseId, trimmedName);
+      const updatedExercise = db.updateExercise(exerciseId, trimmedName, userId);
 
       res.json({
         success: true,
@@ -151,6 +155,7 @@ export const deleteExercise = [
   requireAuth,
   (req: Request, res: Response) => {
     try {
+      const userId = req.session.userId as number;
       const { id } = req.params;
       const exerciseId = parseInt(id as string);
 
@@ -162,7 +167,7 @@ export const deleteExercise = [
       }
 
       // Check if exercise exists
-      const existingExercise = db.getExerciseById(exerciseId);
+      const existingExercise = db.getExerciseById(exerciseId, userId);
       if (!existingExercise) {
         return res.status(404).json({
           success: false,
@@ -170,7 +175,7 @@ export const deleteExercise = [
         });
       }
 
-      const deleted = db.deleteExercise(exerciseId);
+      const deleted = db.deleteExercise(exerciseId, userId);
 
       if (!deleted) {
         return res.status(500).json({

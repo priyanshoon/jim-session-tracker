@@ -11,6 +11,17 @@ class DatabaseService {
     this.db.close();
   }
 
+  private hasColumn(tableName: string, columnName: string): boolean {
+    const rows = this.db.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{ name: string }>;
+    return rows.some((row) => row.name === columnName);
+  }
+
+  private ensureColumn(tableName: string, columnDefinition: string, columnName: string): void {
+    if (!this.hasColumn(tableName, columnName)) {
+      this.db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnDefinition}`);
+    }
+  }
+
   public initializeDB(): void {
     const tableInfo = `
       CREATE TABLE IF NOT EXISTS users (
@@ -23,12 +34,18 @@ class DatabaseService {
 
       CREATE TABLE IF NOT EXISTS exercises (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL
+        name TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE(name, user_id)
       );
 
       CREATE TABLE IF NOT EXISTS workout_templates (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE(name, user_id)
       );
 
       CREATE TABLE IF NOT EXISTS workout_template_exercises (
@@ -61,6 +78,14 @@ class DatabaseService {
       );
     `;
     this.db.exec(tableInfo);
+
+    this.ensureColumn("exercises", "user_id INTEGER", "user_id");
+    this.ensureColumn("workout_templates", "user_id INTEGER", "user_id");
+
+    this.db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_exercises_user_id ON exercises(user_id);
+      CREATE INDEX IF NOT EXISTS idx_workout_templates_user_id ON workout_templates(user_id);
+    `);
   }
 }
 

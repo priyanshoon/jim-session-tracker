@@ -32,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: ["http://localhost:5000", "http://localhost:5173"],
+    origin: [ "http://localhost:5173", "http://192.168.29.191:5173" ],
     credentials: true,
   }),
 );
@@ -68,6 +68,6 @@ app.use(notFoundHandler);
 // Global error handler
 app.use(globalErrorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log("server is up running on port 3000");
 });

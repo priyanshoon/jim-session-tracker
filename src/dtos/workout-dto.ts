@@ -26,6 +26,11 @@ export interface CreateWorkoutSessionDTO {
   performed_at?: string;
 }
 
+export interface UpdateWorkoutSessionDTO {
+  template_id?: number | null;
+  performed_at?: string;
+}
+
 export interface CreateSetDTO {
   exercise_id: number;
   set_number: number;

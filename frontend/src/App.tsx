@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Exercises from "./pages/Exercises";
 import Templates from "./pages/Templates";
+import WorkoutLogs from "./pages/WorkoutLogs";
 
 export default function App() {
   return (
@@ -37,6 +38,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Templates />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/workouts"
+            element={
+              <ProtectedRoute>
+                <WorkoutLogs />
               </ProtectedRoute>
             }
           />

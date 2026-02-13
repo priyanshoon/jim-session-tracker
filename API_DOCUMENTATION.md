@@ -28,6 +28,7 @@
 - `GET /workouts` - Get user's workout sessions (requires auth)
 - `GET /workouts/:id` - Get specific workout session (requires auth)
 - `GET /workouts/:id/sets` - Get workout session with all sets (requires auth)
+- `PUT /workouts/:id` - Update workout session template/time (requires auth)
 - `DELETE /workouts/:id` - Delete workout session (requires auth)
 
 ## Set Logging Endpoints (/sets)

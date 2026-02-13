@@ -54,12 +54,24 @@ export const createSet = [
       }
 
       // Verify exercise exists
-      const exercise = workoutDb.getExerciseById(exercise_id);
+      const exercise = workoutDb.getExerciseById(exercise_id, userId);
       if (!exercise) {
         return res.status(400).json({
           success: false,
           message: "Exercise not found"
         });
+      }
+
+      if (session.template_id) {
+        const templateExercises = workoutDb.getWorkoutExerciseById(session.template_id, userId) as Array<{ id: number }>;
+        const isExerciseInTemplate = templateExercises.some((templateExercise) => templateExercise.id === exercise_id);
+
+        if (!isExerciseInTemplate) {
+          return res.status(400).json({
+            success: false,
+            message: "Exercise is not part of this session template"
+          });
+        }
       }
 
       const newSet = workoutDb.createSet(sessionId, {

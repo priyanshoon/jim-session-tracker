@@ -11,6 +11,7 @@ export async function getWorkoutExercise(
 ) {
   try {
     const id = req.params.id;
+    const userId = req.session.userId as number;
     const templateId = parseInt(id as string);
 
     if (isNaN(templateId)) {
@@ -20,7 +21,7 @@ export async function getWorkoutExercise(
       });
     }
 
-    const workoutExercise = db.getWorkoutExerciseById(templateId);
+    const workoutExercise = db.getWorkoutExerciseById(templateId, userId);
 
     if (workoutExercise === null || workoutExercise.length === 0) {
       return res.status(404).json({ 
@@ -45,6 +46,7 @@ export async function getWorkoutTemplatesById(
 ) {
   try {
     const id = req.params.id;
+    const userId = req.session.userId as number;
     const templateId = parseInt(id as string);
 
     if (isNaN(templateId)) {
@@ -54,7 +56,7 @@ export async function getWorkoutTemplatesById(
       });
     }
 
-    const workoutTemplates = db.getWorkoutTemplatesById(templateId);
+    const workoutTemplates = db.getWorkoutTemplatesById(templateId, userId);
 
     if (workoutTemplates === null) {
       return res.status(404).json({ 
@@ -78,7 +80,8 @@ export async function getWorkoutTemplates(
   next: NextFunction,
 ) {
   try {
-    const workoutTemplates = db.getWorkoutTemplate();
+    const userId = req.session.userId as number;
+    const workoutTemplates = db.getWorkoutTemplate(userId);
     res.status(200).json({ 
       success: true,
       data: workoutTemplates 
@@ -92,6 +95,7 @@ export const createWorkoutTemplate = [
   requireAuth,
   (req: Request, res: Response) => {
     try {
+      const userId = req.session.userId as number;
       const { name } = req.body;
 
       if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -104,7 +108,7 @@ export const createWorkoutTemplate = [
       const trimmedName = name.trim();
 
       // Check if template already exists
-      const existingTemplate = db.getWorkoutTemplate().find(template => 
+      const existingTemplate = db.getWorkoutTemplate(userId).find(template => 
         template.name.toLowerCase() === trimmedName.toLowerCase()
       );
 
@@ -115,7 +119,7 @@ export const createWorkoutTemplate = [
         });
       }
 
-      const newTemplate = db.createWorkoutTemplate(trimmedName);
+      const newTemplate = db.createWorkoutTemplate(trimmedName, userId);
 
       res.status(201).json({
         success: true,
@@ -135,6 +139,7 @@ export const updateWorkoutTemplate = [
   requireAuth,
   (req: Request, res: Response) => {
     try {
+      const userId = req.session.userId as number;
       const { id } = req.params;
       const { name } = req.body;
       const templateId = parseInt(id as string);
@@ -156,7 +161,7 @@ export const updateWorkoutTemplate = [
       const trimmedName = name.trim();
 
       // Check if template exists
-      const existingTemplate = db.getWorkoutTemplatesById(templateId);
+      const existingTemplate = db.getWorkoutTemplatesById(templateId, userId);
       if (!existingTemplate) {
         return res.status(404).json({
           success: false,
@@ -165,7 +170,7 @@ export const updateWorkoutTemplate = [
       }
 
       // Check if another template with this name already exists
-      const duplicateTemplate = db.getWorkoutTemplate().find(template => 
+      const duplicateTemplate = db.getWorkoutTemplate(userId).find(template => 
         template.id !== templateId && template.name.toLowerCase() === trimmedName.toLowerCase()
       );
 
@@ -176,7 +181,7 @@ export const updateWorkoutTemplate = [
         });
       }
 
-      const updatedTemplate = db.updateWorkoutTemplate(templateId, trimmedName);
+      const updatedTemplate = db.updateWorkoutTemplate(templateId, trimmedName, userId);
 
       res.json({
         success: true,
@@ -196,6 +201,7 @@ export const deleteWorkoutTemplate = [
   requireAuth,
   (req: Request, res: Response) => {
     try {
+      const userId = req.session.userId as number;
       const { id } = req.params;
       const templateId = parseInt(id as string);
 
@@ -207,7 +213,7 @@ export const deleteWorkoutTemplate = [
       }
 
       // Check if template exists
-      const existingTemplate = db.getWorkoutTemplatesById(templateId);
+      const existingTemplate = db.getWorkoutTemplatesById(templateId, userId);
       if (!existingTemplate) {
         return res.status(404).json({
           success: false,
@@ -215,7 +221,7 @@ export const deleteWorkoutTemplate = [
         });
       }
 
-      const deleted = db.deleteWorkoutTemplate(templateId);
+      const deleted = db.deleteWorkoutTemplate(templateId, userId);
 
       if (!deleted) {
         return res.status(500).json({
@@ -242,6 +248,7 @@ export const addExerciseToTemplate = [
   requireAuth,
   (req: Request, res: Response) => {
     try {
+      const userId = req.session.userId as number;
       const { id } = req.params;
       const { exercise_id, position } = req.body;
       const templateId = parseInt(id as string);
@@ -271,7 +278,7 @@ export const addExerciseToTemplate = [
       }
 
       // Check if template exists
-      const template = db.getWorkoutTemplatesById(templateId);
+      const template = db.getWorkoutTemplatesById(templateId, userId);
       if (!template) {
         return res.status(404).json({
           success: false,
@@ -280,7 +287,7 @@ export const addExerciseToTemplate = [
       }
 
       // Check if exercise exists
-      const exercise = db.getExerciseById(exerciseId);
+      const exercise = db.getExerciseById(exerciseId, userId);
       if (!exercise) {
         return res.status(404).json({
           success: false,
@@ -288,7 +295,7 @@ export const addExerciseToTemplate = [
         });
       }
 
-      db.addExerciseToTemplate(templateId, exerciseId, exercisePosition);
+      db.addExerciseToTemplate(templateId, exerciseId, exercisePosition, userId);
 
       res.status(201).json({
         success: true,
@@ -308,6 +315,7 @@ export const removeExerciseFromTemplate = [
   requireAuth,
   (req: Request, res: Response) => {
     try {
+      const userId = req.session.userId as number;
       const { id, exerciseId } = req.params;
       const templateId = parseInt(id as string);
       const exId = parseInt(exerciseId as string);
@@ -320,7 +328,7 @@ export const removeExerciseFromTemplate = [
       }
 
       // Check if template exists
-      const template = db.getWorkoutTemplatesById(templateId);
+      const template = db.getWorkoutTemplatesById(templateId, userId);
       if (!template) {
         return res.status(404).json({
           success: false,
@@ -328,7 +336,7 @@ export const removeExerciseFromTemplate = [
         });
       }
 
-      const removed = db.removeExerciseFromTemplate(templateId, exId);
+      const removed = db.removeExerciseFromTemplate(templateId, exId, userId);
 
       if (!removed) {
         return res.status(404).json({
